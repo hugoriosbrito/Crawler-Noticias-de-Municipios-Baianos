@@ -172,4 +172,4 @@ print(f"Quantidade total de notícias encontradas: {len(news)}")
 
 # Exporta os dados coletados para um arquivo Excel
 dfGoogle = pd.DataFrame(news)
-dfGoogle.to_excel("noticias_test.xlsx", index=False)
+dfGoogle.to_excel("noticias.xlsx", index=False)
