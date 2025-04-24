@@ -38,6 +38,7 @@ python main.py
 
 
     
+    ```
     Buscando notícias para: Fraude Licitação Bahia
     Acessando: https://news.google.com/search?q=Fraude+Licitação+Bahia&hl=pt-BR&gl=BR&ceid=BR%3Apt-419
     Notícias encontradas na página: 101
@@ -46,13 +47,15 @@ python main.py
     CONTEÚDO: Conteúdo não encontrado
     FONTE: TRF1
     DATA: 23/04/2025
-    LINK: https://news.google.com/read/CBMi7gFBVV95cUxNaWZUQlk1T2ttTlNfR1ZtQ3BIb1phdEFNLXVtM3haUzkwSkZJbkctWE00UUtZbVlQT2ZTOVhpb3RvcHJSYWhKWnRDN2MtR296RDdTOWZkMS0yU3Y3UUlGTzhwRkNINnc0QWNzOHNFNW80NEhqWHU2U29sM0cwd3lHZ1ZPZ1RxYTlmTExISkdiWFlpcVh4aFQ5Z3VEcWNuZUdEQVpGdE5wZk9NdjhDclN1a2I2X3hJQnUxSk1xUUNvb2tBZzJmQk56Y3dIOTlHSC1sajd2eHhlQ2VRVDhPM3Q4Z1VDWU50S1BncmFHdmRR?hl=pt-BR&gl=BR&ceid=BR%3Apt-419
+    LINK:         
+    https://news.google.com/read/CBMi7gFBVV95cUxNaWZUQlk1T2ttTlNfR1ZtQ3BIb1phdEFNLXVtM3haUzkwSkZJbkctWE00UUtZbVlQT2ZTOVhpb3RvcHJSYWhKWnRDN2MtR296RDdTOWZkMS0yU3Y3UUlGTzhwRkNINnc0QWNzOHNFNW80NEhqWHU2U29sM0cwd3lHZ1ZPZ1RxYTlmTExISkdiWFlpcVh4aFQ5Z3VEcWNuZUdEQVpGdE5wZk9NdjhDclN1a2I2X3hJQnUxSk1xUUNvb2tBZzJmQk56Y3dIOTlHSC1sajd2eHhlQ2VRVDhPM3Q4Z1VDWU50S1BncmFHdmRR?hl=pt-BR&gl=BR&ceid=BR%3Apt-419
     IMAGEM: https://news.google.com/api/attachments/CC8iL0NnNHdaMjlLYWprMVdrbElRV3R5VFJEQ0FSaUVBaWdCTWdrRlFJaW5KYWFoNkFJ=-w200-h112-p-df-rw
     PALAVRA-CHAVE: Fraude Licitação Bahia
     
     ============================================== DICT =====================================================
     {'titulo': 'SJBA - Justiça Federal condena seis pessoas por organização criminosa e fraude à licitação em Cansanção/BA; um réu é absolvido', 'conteudo': 'Conteúdo não encontrado', 'fonte': 'TRF1', 'datetime': '23/04/2025', 'link': 'https://news.google.com/read/CBMi7gFBVV95cUxNaWZUQlk1T2ttTlNfR1ZtQ3BIb1phdEFNLXVtM3haUzkwSkZJbkctWE00UUtZbVlQT2ZTOVhpb3RvcHJSYWhKWnRDN2MtR296RDdTOWZkMS0yU3Y3UUlGTzhwRkNINnc0QWNzOHNFNW80NEhqWHU2U29sM0cwd3lHZ1ZPZ1RxYTlmTExISkdiWFlpcVh4aFQ5Z3VEcWNuZUdEQVpGdE5wZk9NdjhDclN1a2I2X3hJQnUxSk1xUUNvb2tBZzJmQk56Y3dIOTlHSC1sajd2eHhlQ2VRVDhPM3Q4Z1VDWU50S1BncmFHdmRR?hl=pt-BR&gl=BR&ceid=BR%3Apt-419', 'img_url': 'https://news.google.com/api/attachments/CC8iL0NnNHdaMjlLYWprMVdrbElRV3R5VFJEQ0FSaUVBaWdCTWdrRlFJaW5KYWFoNkFJ=-w200-h112-p-df-rw', 'palavra_chave': 'Fraude Licitação Bahia'}
     =======================================================================================================
+    ```
 
 ## Observações
 
