@@ -3,7 +3,7 @@ from spacy.matcher import PhraseMatcher
 from unidecode import unidecode
 
 # Carrega o modelo de português
-nlp = spacy.load("pt_core_news_sm") # python -m spacy download pt_core_news_lg ou pt_core_news_sm para um tamanho menor
+nlp = spacy.load("pt_core_news_lg") # python -m spacy download pt_core_news_lg ou pt_core_news_sm para um tamanho menor
 
 municipios_bahia = [
     "Abaíra", "Abaré", "Acajutiba", "Adustina", "Água Fria", "Aiquara", "Alagoinhas", "Alcobaça",
