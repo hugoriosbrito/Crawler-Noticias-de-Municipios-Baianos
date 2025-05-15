@@ -38,7 +38,7 @@ pip install -r requirements.txt
 ```
 
 ```
- python -m spacy download pt_core_news_lg (ou pt_core_news_sm para um tamanho menor)
+python -m spacy download pt_core_news_lg (ou pt_core_news_sm para um tamanho menor)
 ```
 
 ## Como usar
