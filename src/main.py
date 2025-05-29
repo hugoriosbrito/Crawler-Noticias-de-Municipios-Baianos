@@ -21,6 +21,7 @@ from datetime import datetime
 
 from auxiliar.municipios import get_municipios_metadata 
 from auxiliar.spacy_extract import extrair_municipios 
+from auxiliar import pos_processamento
 
 # URL raiz do Google News
 root_url = 'https://news.google.com'
@@ -55,7 +56,7 @@ seen_links = set()
 PALAVRAS_AMBIGUAS = {
     "saude", "gloria", "vitoria", "esperanca", "salvador", "nazaré", "america",
     "campo", "alegre", "formosa", "nova", "cruz", "belo", "bonito", "feira", "central",
-    "santana"
+    "santana", "wagner", "Wagner"
 }
 
 def normalize_text(text):
@@ -231,7 +232,7 @@ try:
 
         last_height = driver.execute_script("return document.body.scrollHeight")
         scroll_count = 0
-        max_scrolls = 10 
+        max_scrolls = 20
         scroll_pause_time = 2
 
         print(f"Iniciando scroll para carregar mais notícias (max {max_scrolls} scrolls)...")
@@ -352,8 +353,9 @@ if news:
     try:
         # Exporta os dados para um arquivo Excel
         dfGoogle = pd.DataFrame(news)
-        excel_filename = "noticias_fraude_corrupcao_bahia.xlsx"
-        dfGoogle.to_excel(excel_filename, index=False)
+        excel_filename = f"{datetime.now().strftime('%Y-%m-%d_%H%M')}_noticias_fraude_corrupcao_bahia.xlsx"
+        dfProcessado = pos_processamento.processar_linhas(dfGoogle)
+        dfProcessado.to_excel(excel_filename, index=False)
         print(f"✅ Dados exportados para '{excel_filename}'.")
     except Exception as e:
         print(f"❌ Erro ao exportar dados para Excel: {e}")
