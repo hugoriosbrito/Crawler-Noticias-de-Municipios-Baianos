@@ -37,6 +37,10 @@ Obs.: Para instalar o ChromeDriver, baixe a versão compatível com seu Chrome [
 pip install -r requirements.txt
 ```
 
+```
+python -m spacy download pt_core_news_lg (ou pt_core_news_sm para um tamanho menor)
+```
+
 ## Como usar
 
 1. Certifique-se de que o ChromeDriver está configurado corretamente
