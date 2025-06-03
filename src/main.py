@@ -54,8 +54,8 @@ seen_links = set()
 
 # Lista de palavras ambíguas que podem causar confusão na detecção de municípios
 PALAVRAS_AMBIGUAS = {
-    "saude", "gloria", "vitoria", "esperanca", "salvador", "nazaré", "america",
-    "campo", "alegre", "formosa", "nova", "cruz", "belo", "bonito", "feira", "central",
+    "saude", "gloria", "vitoria", "esperanca", "nazaré", "america",
+    "campo", "alegre", "formosa", "nova",  "belo", "bonito", "feira", "central",
     "santana", "wagner", "Wagner"
 }
 
@@ -295,8 +295,9 @@ try:
                              datetime_string += '+00:00' 
 
                         datetime_obj = datetime.fromisoformat(datetime_string)
-                        # Format to desired string format
                         data_publicacao = datetime_obj.strftime('%d/%m/%Y')
+                        ano_filtro = int(datetime_obj.strftime('%Y'))
+                        print(f"🕒 Data de publicação parseada: {data_publicacao}")
                     except ValueError as ve:
                         print(f"❌ Erro ao parsear data '{datetime_string}': {ve}")
                         data_publicacao = datetime_string 
@@ -324,6 +325,11 @@ try:
                     'palavra_chave': palavra,
                     'municipios_citados': municipios_string
                 }
+
+                if ano_filtro < 2023:
+                    print(f"⚠️ Ignorando notícia de ano {ano_filtro} (menor que 2023).")
+                    continue
+
                 news.append(item_dict)
 
                 print(
