@@ -46,6 +46,8 @@ search_terms = [
     "Corrupção Ativa Bahia",
     "Fraude Documental Bahia",
     "Desvio Milionário Bahia"
+    "MP organização criminosa Bahia",
+    "PF corrupção fraude prefeitura bahia"
 ]
 
 # Lista para armazenar as notícias coletadas
