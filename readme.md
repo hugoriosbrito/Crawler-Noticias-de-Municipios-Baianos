@@ -69,13 +69,7 @@ O arquivo `noticias_fraude_corrupcao_bahia.xlsx` contém as seguintes informaç�
 - URL da imagem
 - Palavra-chave utilizada na busca
 
-## Observações
-
-- O script utiliza modo headless (sem interface gráfica) para melhor performance
-- Inclui tratamento robusto de erros e timeouts
-- Implementa scroll automático para carregar mais notícias
-- Possui sistema inteligente para evitar duplicatas
-- Realiza validação e normalização de dados
+## Exemplo de execução
 
 
 ``` 
@@ -95,9 +89,11 @@ PALAVRA-CHAVE: Desvio Milionário Bahia
 
 ## Observações
 
-- O script roda o Chrome em modo headless (sem interface gráfica).
-- O processo pode demorar alguns minutos, dependendo da quantidade de termos e notícias encontradas.
-- Evite executar múltiplas vezes em sequência para não ser bloqueado pelo Google News.
+- O script utiliza modo headless (sem interface gráfica) para melhor performance
+- Inclui tratamento robusto de erros e timeouts
+- Implementa scroll automático para carregar mais notícias
+- Possui sistema inteligente para evitar duplicatas
+- Realiza validação e normalização de dados
 
 ## Autor
 
