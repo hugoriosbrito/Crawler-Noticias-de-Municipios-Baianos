@@ -98,7 +98,3 @@ PALAVRA-CHAVE: Desvio Milionário Bahia
 ## Autor
 
 Hugo Rios Brito
-year = {2025},
-howpublished = {\url{https://github.com/hugoriosbrito/Crawler-Noticias-de-Municipios-Baianos}},
-note = {Script para coletar notícias relacionadas à corrupção, fraudes e operações policiais na Bahia}
-}
