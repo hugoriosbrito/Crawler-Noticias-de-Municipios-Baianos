@@ -98,19 +98,6 @@ PALAVRA-CHAVE: Desvio Milionário Bahia
 ## Autor
 
 Hugo Rios Brito
-
-## Como citar
-
-Se você utilizar este repositório em algum trabalho acadêmico ou publicação, por favor cite da seguinte maneira:
-
-**Em texto corrido:**
-
-> Hugo Rios Brito. Crawler-Noticias-de-Municipios-Baianos: Script para coletar notícias relacionadas a corrupção, fraudes e operações policiais em municípios da Bahia. GitHub. Disponível em: https://github.com/hugoriosbrito/Crawler-Noticias-de-Municipios-Baianos
-
-**BibTeX:**
-@misc{hugoriosbrito_crawler_2025,
-author = {Hugo Rios Brito},
-title = {Crawler-Noticias-de-Municipios-Baianos},
 year = {2025},
 howpublished = {\url{https://github.com/hugoriosbrito/Crawler-Noticias-de-Municipios-Baianos}},
 note = {Script para coletar notícias relacionadas à corrupção, fraudes e operações policiais na Bahia}
