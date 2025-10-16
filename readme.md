@@ -47,11 +47,11 @@ python -m spacy download pt_core_news_lg (ou pt_core_news_sm para um tamanho men
 2. Execute o script principal:
 
 ```
-python .\src\main.py --t <caminho_para_arquivo_txt_com_termos_de_pesquisa> -s <nome_do_arquivo_de_saida>
+python .\src\main.py -t <caminho_para_arquivo_txt_com_termos_de_pesquisa> -s <nome_do_arquivo_de_saida>
 ```
 Exemplo:
 ```
-python .\src\main.py --t .\src\termos_pesquisa\termos_para_pesquisa.txt -s saida
+python .\src\main.py -t .\src\termos_pesquisa\termos_para_pesquisa.txt -s saida
 ```
 
 Para mais detalhes ou ajuda utilize: ```python .\src\main.py --help```
