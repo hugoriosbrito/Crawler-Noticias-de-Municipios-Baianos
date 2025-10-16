@@ -14,7 +14,7 @@ Este script realiza buscas automatizadas no Google News sobre diversos temas rel
 
 ## Funcionalidades
 
-- Busca automática por 18+ termos relacionados a irregularidades (fraudes, corrupção, operações policiais, etc.)
+- Busca automática por termos passados através de um arquivo ```.txt```
 - Identificação inteligente de municípios citados nas notícias
 - Tratamento de palavras ambíguas para evitar falsos positivos
 - Normalização e validação de datas de publicação
@@ -47,18 +47,24 @@ python -m spacy download pt_core_news_lg (ou pt_core_news_sm para um tamanho men
 2. Execute o script principal:
 
 ```
-python src/main.py
+python .\src\main.py --t <caminho_para_arquivo_txt_com_termos_de_pesquisa> -s <nome_do_arquivo_de_saida>
 ```
+Exemplo:
+```
+python .\src\main.py --t .\src\termos_pesquisa\termos_para_pesquisa.txt -s saida
+```
+
+Para mais detalhes ou ajuda utilize: ```python .\src\main.py --help```
 
 3. O script irá:
    - Buscar notícias para múltiplos termos de pesquisa
    - Processar e identificar municípios citados
    - Coletar metadados completos
-   - Salvar os resultados em `noticias_fraude_corrupcao_bahia.xlsx`
+   - Salvar os resultados em `nome_arquivo_de_saida_(timestamp).xlsx`
 
 ## Saída
 
-O arquivo `noticias_fraude_corrupcao_bahia.xlsx` contém as seguintes informações para cada notícia:
+O arquivo `nome_arquivo_de_saida_(timestamp).xlsx` contém as seguintes informações para cada notícia:
 
 - Título
 - Conteúdo
