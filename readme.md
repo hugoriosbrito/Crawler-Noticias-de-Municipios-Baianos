@@ -1,21 +1,26 @@
 
 # Crawler de Notícias dos Municípios Baianos
 
-Script automatizado para monitoramento de notícias relacionadas a corrupção, fraudes, operações policiais e irregularidades em municípios da Bahia através do Google News. Desenvolvido para apoiar o trabalho de análise do Tribunal de Contas dos Municípios da Bahia (TCM-BA).
+Script automatizado para monitoramento de notícias relacionadas a corrupção, fraudes, operações policiais e irregularidades em municípios da Bahia através do Google News e outras fontes. Desenvolvido para apoiar o trabalho de análise do Tribunal de Contas dos Municípios da Bahia (TCM-BA).
 
 ## Descrição
 
-Este script realiza buscas automatizadas no Google News sobre diversos temas relacionados a irregularidades administrativas e operações policiais nos municípios da Bahia. Ele utiliza:
+Este script realiza buscas automatizadas no Google News e outras fontes sobre diversos temas relacionados a irregularidades administrativas e operações policiais nos municípios da Bahia. Ele utiliza:
 
 - Selenium para automação do navegador
 - BeautifulSoup para extração dos dados
 - Processamento de linguagem natural para identificação de municípios
 - Pandas para manipulação e exportação dos dados
 
+
 ## Funcionalidades
 
 - Busca automática por termos passados através de um arquivo ```.txt```
-- Identificação inteligente de municípios citados nas notícias
+- Identificação inteligente de municípios citados nas notícias, com lógica aprimorada:
+   - Pré-processamento dos textos para remoção de sufixos como "(BA)", "- BA", etc.
+   - Detecção de contexto geográfico para evitar falsos positivos em nomes ambíguos (ex: "Glória", "Saúde", "Vitória")
+   - Tratamento especial para municípios compostos (nomes com mais de uma palavra)
+   - Utilização de modelo spaCy para extração inicial e múltiplos filtros contextuais
 - Tratamento de palavras ambíguas para evitar falsos positivos
 - Normalização e validação de datas de publicação
 - Coleta de metadados completos (título, conteúdo, fonte, data, link, imagem)
@@ -43,16 +48,26 @@ python -m spacy download pt_core_news_lg (ou pt_core_news_sm para um tamanho men
 
 ## Como usar
 
+
 1. Certifique-se de que o ChromeDriver está configurado corretamente
 2. Execute o script principal:
 
 ```
-python .\src\main.py -t <caminho_para_arquivo_txt_com_termos_de_pesquisa> -s <nome_do_arquivo_de_saida>
+python .\src\main.py -t <caminho_para_arquivo_txt_com_termos_de_pesquisa> -s <nome_do_arquivo_de_saida> [-f <fontes>]
 ```
-Exemplo:
+
+Exemplos:
 ```
+# Buscar apenas no Google News (padrão)
 python .\src\main.py -t .\src\termos_pesquisa\termos_para_pesquisa.txt -s saida
+
+# Buscar em múltiplas fontes (Google News e Portal A Tarde)
+python .\src\main.py -t .\src\termos_pesquisa\termos_para_pesquisa.txt -s saida -f google_news portal_atarde
 ```
+
+O parâmetro `--fonte` permite especificar uma ou mais fontes de notícias suportadas. Se não for informado, o padrão é `google_news`. As opções atuais são:
+- `google_news`
+- `portal_atarde`
 
 Para mais detalhes ou ajuda utilize: ```python .\src\main.py --help```
 
@@ -93,6 +108,7 @@ IMAGEM: https://news.google.com/api/attachments/CC8iJ0NnNTRlWEk0VDNCZk56QnBXak42
 PALAVRA-CHAVE: Desvio Milionário Bahia
 ```
 
+
 ## Observações
 
 - O script utiliza modo headless (sem interface gráfica) para melhor performance
@@ -100,6 +116,12 @@ PALAVRA-CHAVE: Desvio Milionário Bahia
 - Implementa scroll automático para carregar mais notícias
 - Possui sistema inteligente para evitar duplicatas
 - Realiza validação e normalização de dados
+- A lógica de detecção de municípios foi aprimorada para:
+   - Remover sufixos e padronizar nomes antes da extração
+   - Verificar se nomes ambíguos aparecem em contexto geográfico (ex: "Prefeitura de Glória", "em Vitória")
+   - Ignorar menções genéricas a "Bahia" e outros termos não relevantes
+   - Priorizar o contexto do texto e do título para maior precisão
+   - Tratar corretamente municípios compostos, evitando duplicidade de componentes
 
 ## Autor
 
