@@ -20,7 +20,7 @@ from selenium.common.exceptions import TimeoutException
 from bs4 import BeautifulSoup
 
 from auxiliar import pos_processamento
-import definicoes
+import auxiliar.definicoes as definicoes
 
 # URL raiz das fontes
 ROOT_URLS = {
@@ -236,7 +236,7 @@ def collect_news_from_source(driver, search_terms, source='google_news'):
             'load_method': 'click',
             'load_selector': '.atr-maisNoticias'
         }
-        # adicionar outras fontes aqui
+        # adicionar outras fontes aqui no futuro
     }
 
     config = source_config.get(source)
