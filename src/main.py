@@ -8,10 +8,14 @@ Utiliza Selenium para automação do navegador, BeautifulSoup para parsing do HT
 import sys
 import time
 import argparse
-from datetime import datetime
+import os
+from datetime import datetime, timedelta
 
 import pandas as pd
 from selenium import webdriver
+import requests
+from dotenv import load_dotenv
+
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -21,6 +25,19 @@ from bs4 import BeautifulSoup
 
 from auxiliar import pos_processamento
 import auxiliar.definicoes as definicoes
+import auxiliar.db as db
+
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+print(BASE_DIR)
+
+dotenv_path = os.path.join(BASE_DIR, '.env')
+load_dotenv(dotenv_path=dotenv_path)
+
+db_user = os.getenv("DB_USER")
+db_password = os.getenv("DB_PASSWORD")
+db_host = os.getenv("DB_HOST")
+db_encoding = os.getenv("DB_ENCODE")
+proxy_url = os.getenv("PROXY_URL")
 
 # URL raiz das fontes
 ROOT_URLS = {
@@ -29,14 +46,44 @@ ROOT_URLS = {
 }
 
 # Configuração das opções do Chrome para rodar em modo headless (sem interface gráfica)
-def setup_driver():
+def setup_driver(use_proxy=False):
     chrome_options = Options()
     chrome_options.add_argument("--headless")
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.add_argument("--disable-gpu")
+    chrome_options.add_argument("--log-level=3")  # Suppress browser logs
+    chrome_options.add_experimental_option('excludeSwitches', ['enable-logging']) # Suppress devtools listening log
+
+    if use_proxy and proxy_url:
+        chrome_options.add_argument("--ignore-certificate-errors")
+        chrome_options.add_argument(f"--proxy-server={proxy_url}")
+        chrome_options.add_argument("--proxy-bypass-list=localhost,127.0.0.1,<-loopback>")
+        chrome_options.add_argument("--ignore-ssl-errors=yes")
+
     chrome_options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36")
     return webdriver.Chrome(options=chrome_options)
+
+def corrigir_url(url: str) -> str:
+    if url == 'Imagem não encontrada':
+        return url
+    padrao_errado = "https://news.google.comhttps"
+    if url.startswith(padrao_errado):
+        return url.replace("https://news.google.com", "", 1)
+    return url
+
+def resolver_url_final(url_img):
+    if url_img == 'Imagem não encontrada':
+        return url_img
+    try:
+        response = requests.get(
+            corrigir_url(url_img),
+            allow_redirects=True,
+            timeout=5
+        )
+        return response.url
+    except Exception:
+        return corrigir_url(url_img)
 
 # Função para carregar a página de busca e aguardar elementos
 def load_search_page(driver, url, selectors):
@@ -108,7 +155,7 @@ def parse_news_items(html, search_term, root_url, seen_links, news, config):
             content_tag = item.select_one(config['content'])
             link_tag = item.select_one(config['link']) if config['link'] else item
             publisher_tag = item.select_one(config['publisher']) if config['publisher'] else None
-            img_tag = item.find(config['img']) if config['img'] else item.find('img')
+            img_tag = item.select_one(config['img']) if config['img'] else item.find('img')
             date_tag = item.select_one(config['date'])
 
             if link_tag and link_tag.get('href'):
@@ -168,7 +215,11 @@ def parse_news_items(html, search_term, root_url, seen_links, news, config):
                 img_tag['src'] if img_tag and img_tag.get('src') else 'Imagem não encontrada'
             )
 
-            img_url = img_url_final if img_url_final.startswith('http') else root_url + img_url_final
+            if img_url_final == 'Imagem não encontrada':
+                img_url = img_url_final
+            else:
+                img_url = img_url_final if img_url_final.startswith('http') else root_url + img_url_final
+                img_url = resolver_url_final(img_url)
 
             municipios_potential = definicoes.get_municipios_from_title(title, content)
             municipios_string = ",".join(municipios_potential) if municipios_potential else ""
@@ -187,6 +238,16 @@ def parse_news_items(html, search_term, root_url, seen_links, news, config):
             if ano_filtro is not None and ano_filtro < 2023:
                 print(f"Ignorando notícia de ano {ano_filtro} (menor que 2023).")
                 continue
+
+            if config.get('default_publisher') == 'A Tarde':
+                try:
+                    parsed_datetime = datetime.strptime(data_publicacao, '%d/%m/%Y')
+                    limite_30_dias = datetime.now() - timedelta(days=30)
+                    if parsed_datetime < limite_30_dias:
+                        print(f"Ignorando notícia de {data_publicacao} (mais de 30 dias) do portal A Tarde.")
+                        continue
+                except Exception as e:
+                    pass
 
             news.append(item_dict)
 
@@ -264,7 +325,7 @@ def collect_news_from_source(driver, search_terms, source='google_news'):
     return news
 
 # Função para processar e salvar as notícias em Excel
-def process_and_save_news(news, output_file):
+def process_and_save_news(news, output_file, con=None, table=None, ide_execucao=None):
     print(f"Quantidade total de notícias únicas encontradas e processadas: {len(news)}")
 
     if news:
@@ -276,16 +337,52 @@ def process_and_save_news(news, output_file):
             dfProcessado = pos_processamento.processar_linhas(df)
             dfProcessado.to_excel(excel_filename, index=False)
             print(f"✅ Dados exportados para '{excel_filename}'.")
+
+            if con:
+                db.salvar_noticias(con, dfProcessado, ide_execucao)
         except Exception as e:
-            print(f"Erro ao exportar dados para Excel: {e}")
+            print(f"Erro ao exportar dados: {e}")
+            if con and ide_execucao:
+                db.registrar_erro(ide_execucao, str(e), con)
 
 # Função principal
-def main(search_terms, output_file, sources=['google_news']):
+def main(search_terms, output_file, search_terms_txt, sources=['google_news'], use_proxy=False, use_db=False, gerar_banco=False):
     news = []
-    for source in sources:
-        driver = setup_driver()
-        news += collect_news_from_source(driver, search_terms, source)
-    process_and_save_news(news, output_file)
+    con = None
+    ide_execucao = None
+    
+    if use_db or gerar_banco:
+        con = db.abrirConexao(db_user, db_password, db_encoding, db_host)
+        if con is None:
+            print("Não foi possível conectar ao banco de dados.")
+            sys.exit(1)
+            
+        if gerar_banco:
+            db.criar_tabelas(con)
+            print("Estrutura do banco de dados verificada/criada. Encerrando execução.")
+            sys.exit(0)
+            
+        if use_db:
+            try:
+                db.verificar_tabelas(con)
+            except Exception as e:
+                print(f"Erro: {e}")
+                sys.exit(1)
+            ide_execucao = db.registrar_inicio(con, "CRAWLER_NOTICIAS", f"Busca por {len(search_terms)} termos")
+            
+    try:
+        for source in sources:
+            driver = setup_driver(use_proxy=use_proxy)
+            news += collect_news_from_source(driver, search_terms, source)
+        process_and_save_news(news, output_file, con=con, table=None, ide_execucao=ide_execucao)
+        
+        if con and ide_execucao:
+            db.registrar_fim(ide_execucao, con)
+            
+    except Exception as e:
+        if con and ide_execucao:
+            db.registrar_erro(ide_execucao, str(e), con)
+        raise e
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -295,22 +392,44 @@ if __name__ == "__main__":
         )
     )
     parser.add_argument(
-        "-t", "--termos", required=True,
+        "-t", "--termos", required=False,
         help="Caminho para o arquivo .txt contendo um termo por linha"
     )
     parser.add_argument(
-        "-s", "--saida", required=True,
+        "-s", "--saida", required=False,
         help="Prefixo do nome do arquivo de saída (não adicionar '.xlsx' e timestamp, será adicionado automaticamente)."
     )
     parser.add_argument(
         "-f", "--fonte", nargs='+', default=['google_news'],
         help="Lista das fontes para buscar notícias (google_news, portal_atarde)"
     )
+    parser.add_argument(
+        "-p", "--proxy", type=str, default="false",
+        help="Habilita o uso de proxy para a coleta (ex: --proxy=true). Padrão é false."
+    )
+    parser.add_argument(
+        "-db", "--database", type=str, default="false",
+        help="Habilita o uso do banco de dados para salvar as notícias (ex: --database=true). Padrão é false."
+    )
+    parser.add_argument(
+        "--gerar-banco", action="store_true",
+        help="Cria as tabelas necessárias no banco de dados configurado no .env e encerra a execução."
+    )
 
     args = parser.parse_args()
+    
+    if args.gerar_banco:
+        main([], "", "", sources=[], use_proxy=False, use_db=False, gerar_banco=True)
+        sys.exit(0)
+
+    if not args.termos or not args.saida:
+        parser.error("os seguintes argumentos são obrigatórios: -t/--termos, -s/--saida (a menos que use --gerar-banco)")
+
     errors = False
     search_terms_txt = args.termos
     output_file = args.saida
+    use_proxy = args.proxy.lower() == 'true'
+    use_db = args.database.lower() == 'true'
 
     try:
         with open(search_terms_txt, 'r', encoding='utf-8') as f:
@@ -325,4 +444,4 @@ if __name__ == "__main__":
         sys.exit(1)
 
     if not errors:
-        main(lines, output_file, args.fonte)
+        main(lines, output_file, search_terms_txt, args.fonte, use_proxy=use_proxy, use_db=use_db, gerar_banco=False)

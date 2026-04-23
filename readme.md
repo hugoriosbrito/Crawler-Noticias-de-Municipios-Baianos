@@ -53,25 +53,34 @@ python -m spacy download pt_core_news_lg (ou pt_core_news_sm para um tamanho men
 2. Execute o script principal:
 
 ```
-python .\src\main.py -t <caminho_para_arquivo_txt_com_termos_de_pesquisa> -s <nome_do_arquivo_de_saida> [-f <fontes>]
+python .\src\main.py -t <caminho_para_arquivo_txt_com_termos_de_pesquisa> -s <nome_do_arquivo_de_saida> [-f <fontes>] [-p <proxy>] [-db <database>]
 ```
 
 Exemplos:
 ```
-# Buscar apenas no Google News (padrão)
+# Buscar apenas no Google News (padrão) sem proxy e sem banco de dados
 python .\src\main.py -t .\src\termos_pesquisa\termos_para_pesquisa.txt -s saida
 
 # Buscar em múltiplas fontes (Google News e Portal A Tarde)
 python .\src\main.py -t .\src\termos_pesquisa\termos_para_pesquisa.txt -s saida -f google_news portal_atarde
+
+# Executar com uso de proxy e persistência em banco de dados
+python .\src\main.py -t .\src\termos_pesquisa\termos_para_pesquisa.txt -s saida -p true -db true
 ```
 
-O parâmetro `--fonte` permite especificar uma ou mais fontes de notícias suportadas. Se não for informado, o padrão é `google_news`. As opções atuais são:
+O parâmetro `--fonte` ou `-f` permite especificar uma ou mais fontes de notícias suportadas. Se não for informado, o padrão é `google_news`. As opções atuais são:
 - `google_news`
 - `portal_atarde`
 
+O parâmetro `--proxy` ou `-p` permite especificar se o script deve utilizar as configurações de proxy definidas no `.env`. O valor padrão é `false`. Exemplo: `-p true`.
+
+O parâmetro `--database` ou `-db` permite especificar se o script deve realizar a persistência das notícias encontradas em um banco de dados (também configurado via `.env`). O valor padrão é `false`. Exemplo: `-db true`.
+
+O parâmetro `--gerar-banco` é utilizado para criar automaticamente as tabelas necessárias (`NOTICIAS_MUNICIPIOS` e `LOG_EXECUCAO_NOTICIAS`) no banco de dados configurado no `.env`. Ele deve ser executado antes da primeira utilização do script com persistência ativada. Ao executar com esta flag, o script encerra após a criação/validação da estrutura. Exemplo: `python .\src\main.py --gerar-banco`.
+
 Para mais detalhes ou ajuda utilize: ```python .\src\main.py --help```
 
-3. O script irá:
+3. O script irá, se executado sem argumentos:
    - Buscar notícias para múltiplos termos de pesquisa
    - Processar e identificar municípios citados
    - Coletar metadados completos
