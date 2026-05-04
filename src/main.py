@@ -64,26 +64,45 @@ def setup_driver(use_proxy=False):
     chrome_options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36")
     return webdriver.Chrome(options=chrome_options)
 
-def corrigir_url(url: str) -> str:
-    if url == 'Imagem não encontrada':
-        return url
-    padrao_errado = "https://news.google.comhttps"
-    if url.startswith(padrao_errado):
-        return url.replace("https://news.google.com", "", 1)
-    return url
+def parse_srcset(srcset: str):
+    """Extrai a URL de maior resolução de um atributo srcset HTML."""
+    if not srcset or not srcset.strip():
+        return None
+    candidates = [part.strip() for part in srcset.split(',') if part.strip()]
+    # Pega o último candidato (maior resolução no srcset típico)
+    raw = candidates[-1].strip().split()[0]
+    return raw if raw else None
 
-def resolver_url_final(url_img):
-    if url_img == 'Imagem não encontrada':
-        return url_img
+def normalize_image_url(url: str, root_url: str):
+    """Normaliza uma URL de imagem, tratando data:, protocol-relative e relativas."""
+    if not url:
+        return None
+    if url.startswith('data:'):
+        return None
+    if url.startswith('//'):
+        return 'https:' + url
+    if url.startswith('http'):
+        return url
+    # Relativa: garante exatamente uma barra entre root e path
+    return root_url.rstrip('/') + '/' + url.lstrip('/')
+
+def validar_imagem(url: str, timeout: int = 5):
+    """Valida via HEAD que a URL aponta para uma imagem. Retorna URL final ou None."""
     try:
-        response = requests.get(
-            corrigir_url(url_img),
+        resp = requests.head(
+            url,
             allow_redirects=True,
-            timeout=5
+            timeout=timeout,
+            headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'}
         )
-        return response.url
-    except Exception:
-        return corrigir_url(url_img)
+        content_type = resp.headers.get('Content-Type', '')
+        if resp.status_code == 200 and content_type.startswith('image/'):
+            return resp.url
+        print(f"  IMG REJEITADA: status={resp.status_code} type={content_type} url={url}")
+        return None
+    except Exception as e:
+        print(f"  IMG ERRO HEAD: {e} url={url}")
+        return None
 
 # Função para carregar a página de busca e aguardar elementos
 def load_search_page(driver, url, selectors):
@@ -211,15 +230,14 @@ def parse_news_items(html, search_term, root_url, seen_links, news, config):
                         print(f"Erro ao parsear data do texto '{date_text}': {e}")
                         data_publicacao = date_text
 
-            img_url_final = img_tag['srcset'].split()[0] if img_tag and img_tag.get('srcset') else (
-                img_tag['src'] if img_tag and img_tag.get('src') else 'Imagem não encontrada'
+            raw_url = (
+                parse_srcset(img_tag.get('srcset')) if img_tag and img_tag.get('srcset')
+                else (img_tag.get('src') if img_tag else None)
             )
-
-            if img_url_final == 'Imagem não encontrada':
-                img_url = img_url_final
-            else:
-                img_url = img_url_final if img_url_final.startswith('http') else root_url + img_url_final
-                img_url = resolver_url_final(img_url)
+            print(f"  IMG SRC BRUTO: srcset={repr(img_tag.get('srcset') if img_tag else None)} src={repr(img_tag.get('src') if img_tag else None)}")
+            img_url_original = normalize_image_url(raw_url, root_url) if raw_url else 'Imagem não encontrada'
+            validated = validar_imagem(img_url_original) if img_url_original != 'Imagem não encontrada' else None
+            img_url = validated if validated else 'Imagem não encontrada'
 
             municipios_potential = definicoes.get_municipios_from_title(title, content)
             municipios_string = ",".join(municipios_potential) if municipios_potential else ""
@@ -231,6 +249,7 @@ def parse_news_items(html, search_term, root_url, seen_links, news, config):
                 'datetime': data_publicacao,
                 'link': item_link,
                 'img_url': img_url,
+                'img_url_original': img_url_original,
                 'palavra_chave': search_term,
                 'municipios_citados': municipios_string
             }
@@ -258,7 +277,8 @@ def parse_news_items(html, search_term, root_url, seen_links, news, config):
             print(f"FONTE: {item_dict['fonte']}")
             print(f"DATA: {item_dict['datetime']}")
             print(f"LINK: {item_dict['link']}")
-            print(f"IMAGEM: {item_dict['img_url']}")
+            print(f"IMAGEM (final): {item_dict['img_url']}")
+            print(f"IMAGEM (original): {item_dict['img_url_original']}")
             print(f"PALAVRA-CHAVE: {item_dict['palavra_chave']}")
         except Exception as e:
             print(f"Erro ao processar item: {e}")
